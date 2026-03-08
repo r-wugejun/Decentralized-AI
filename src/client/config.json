@@ -1,0 +1,8 @@
+{
+  "node_id": "node_d1a74676",
+  "max_cpu_percent": 50,
+  "max_memory_percent": 30,
+  "max_gpu_percent": 60,
+  "idle_threshold": 30,
+  "auto_start": true
+}
