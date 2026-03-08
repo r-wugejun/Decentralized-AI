@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decentralized AI - 去中心化算力网络</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        /* 导航栏 */
+        .navbar {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            color: #00d4ff;
+        }
+        
+        /* 主容器 */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* 仪表盘概览 */
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid #00d4ff;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .status-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.1);
+        }
+        
+        .stat-card h3 {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #fff, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-change {
+            color: #00ff88;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .stat-change.negative {
+            color: #ff4757;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+        
+        /* 图表区 */
+        .chart-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+        
+        .chart-section h2 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .chart-placeholder {
+            height: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .sidebar-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+        
+        .sidebar-card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        /* 钱包余额 */
+        .wallet-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .wallet-item:last-child {
+            border-bottom: none;
+        }
+        
+        .token-name {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .token-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        
+        .token-icon.daicf {
+            background: linear-gradient(135deg, #7b2cbf, #00d4ff);
+        }
+        
+        .token-icon.daico {
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+        }
+        
+        .token-balance {
+            text-align: right;
+        }
+        
+        .token-amount {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .token-value {
+            color: #a0a0a0;
+            font-size: 0.85rem;
+        }
+        
+        /* 任务列表 */
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .task-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .task-status.running {
+            background: #00d4ff;
+            animation: pulse 2s infinite;
+        }
+        
+        .task-status.completed {
+            background: #00ff88;
+        }
+        
+        .task-info {
+            flex: 1;
+        }
+        
+        .task-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .task-meta {
+            color: #a0a0a0;
+            font-size: 0.85rem;
+        }
+        
+        .task-reward {
+            color: #00ff88;
+            font-weight: 500;
+        }
+        
+        /* 资源使用 */
+        .resource-item {
+            margin-bottom: 1rem;
+        }
+        
+        .resource-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .resource-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .resource-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .resource-fill.cpu {
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+        }
+        
+        .resource-fill.gpu {
+            background: linear-gradient(90deg, #7b2cbf, #ff00ff);
+        }
+        
+        .resource-fill.memory {
+            background: linear-gradient(90deg, #00ff88, #00d4ff);
+        }
+        
+        /* 按钮 */
+        .btn {
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            border: none;
+            color: white;
+            padding: 0.875rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">🚀 Decentralized AI</div>
+        <div class="nav-links">
+            <a href="#" class="active">仪表盘</a>
+            <a href="#">任务</a>
+            <a href="#">钱包</a>
+            <a href="#">设置</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- 仪表盘头部 -->
+        <div class="dashboard-header">
+            <h1>算力节点仪表盘</h1>
+            <span class="status-badge">节点在线运行中</span>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>总算力贡献</h3>
+                <div class="stat-value">12.5</div>
+                <div class="stat-change">↑ +15% 本周</div>
+            </div>
+            <div class="stat-card">
+                <h3>DAICF 余额</h3>
+                <div class="stat-value">1,280</div>
+                <div class="stat-change">↑ +45 今日</div>
+            </div>
+            <div class="stat-card">
+                <h3>DAICO 余额</h3>
+                <div class="stat-value">856</div>
+                <div class="stat-change">↑ +23 今日</div>
+            </div>
+            <div class="stat-card">
+                <h3>完成任务</h3>
+                <div class="stat-value">48</div>
+                <div class="stat-change">↑ +3 今日</div>
+            </div>
+        </div>
+
+        <!-- 主内容 -->
+        <div class="main-content">
+            <!-- 左侧：图表和任务 -->
+            <div class="left-section">
+                <!-- 算力趋势图 -->
+                <div class="chart-section">
+                    <h2>📊 算力贡献趋势</h2>
+                    <div class="chart-placeholder">
+                        [算力使用趋势图表]
+                    </div>
+                </div>
+
+                <!-- 最近任务 -->
+                <div class="chart-section" style="margin-top: 1.5rem;">
+                    <h2>📋 最近任务</h2>
+                    <div class="task-item">
+                        <div class="task-status running"></div>
+                        <div class="task-info">
+                            <div class="task-name">训练任务 #T-2024-001</div>
+                            <div class="task-meta">模型: Grok-like-7B | 已运行 2小时</div>
+                        </div>
+                        <div class="task-reward">+50 DAICF</div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-status completed"></div>
+                        <div class="task-info">
+                            <div class="task-name">推理任务 #I-2024-089</div>
+                            <div class="task-meta">完成于 10分钟前</div>
+                        </div>
+                        <div class="task-reward">+2.4 DAICO</div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-status completed"></div>
+                        <div class="task-info">
+                            <div class="task-name">推理任务 #I-2024-088</div>
+                            <div class="task-meta">完成于 25分钟前</div>
+                        </div>
+                        <div class="task-reward">+1.8 DAICO</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：侧边栏 -->
+            <div class="sidebar">
+                <!-- 钱包余额 -->
+                <div class="sidebar-card">
+                    <h3>💰 钱包余额</h3>
+                    <div class="wallet-item">
+                        <div class="token-name">
+                            <div class="token-icon daicf">F</div>
+                            <span>DAICF</span>
+                        </div>
+                        <div class="token-balance">
+                            <div class="token-amount">1,280</div>
+                            <div class="token-value">≈ $128</div>
+                        </div>
+                    </div>
+                    <div class="wallet-item">
+                        <div class="token-name">
+                            <div class="token-icon daico">O</div>
+                            <span>DAICO</span>
+                        </div>
+                        <div class="token-balance">
+                            <div class="token-amount">856</div>
+                            <div class="token-value">≈ $85.6</div>
+                        </div>
+                    </div>
+                    <button class="btn" style="margin-top: 1rem;">提取到钱包</button>
+                </div>
+
+                <!-- 资源使用 -->
+                <div class="sidebar-card">
+                    <h3>⚡ 资源使用</h3>
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span>CPU</span>
+                            <span>45%</span>
+                        </div>
+                        <div class="resource-bar">
+                            <div class="resource-fill cpu" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span>GPU</span>
+                            <span>72%</span>
+                        </div>
+                        <div class="resource-bar">
+                            <div class="resource-fill gpu" style="width: 72%"></div>
+                        </div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span>内存</span>
+                            <span>28%</span>
+                        </div>
+                        <div class="resource-bar">
+                            <div class="resource-fill memory" style="width: 28%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快速操作 -->
+                <div class="sidebar-card">
+                    <h3>⚙️ 快速操作</h3>
+                    <button class="btn" style="margin-bottom: 0.75rem;">暂停算力提供</button>
+                    <button class="btn btn-secondary">查看详细设置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>Decentralized AI © 2025 | 利用闲置算力，共建AI未来</p>
+    </footer>
+</body>
+</html>
